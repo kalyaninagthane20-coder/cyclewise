@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:400px;margin:60px auto">
+  <div class="card">
+    <div class="card-title" style="text-align:center">Create your account</div>
+    <form method="POST" action="/register">
+      <label>Full name</label>
+      <input type="text" name="name" placeholder="Your name" required/>
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@email.com" required/>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" required/>
+      <button class="btn btn-full" type="submit">Create account →</button>
+    </form>
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:#888">
+      Already have an account? <a href="/login" style="color:#993556;font-weight:600">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

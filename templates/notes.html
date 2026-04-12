@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-title">How are you feeling today?</div>
+  <form method="POST">
+    <label>Date</label>
+    <input type="date" name="date" value="{{ today }}" required/>
+    <label>Mood</label>
+    <select name="mood_tag">
+      <option value="">Select mood...</option>
+      <option>😊 Happy</option>
+      <option>😔 Sad</option>
+      <option>😤 Anxious</option>
+      <option>😴 Tired</option>
+      <option>😣 Painful</option>
+      <option>😌 Calm</option>
+      <option>🤒 Unwell</option>
+    </select>
+    <label>Your note</label>
+    <textarea name="content" placeholder="Write anything — symptoms, how you're feeling, what you ate..." required></textarea>
+    <button class="btn" type="submit">Save note</button>
+  </form>
+</div>
+
+{% if notes %}
+<div class="card">
+  <div class="card-title">Past entries</div>
+  {% for n in notes %}
+  <div style="padding:10px 0;border-bottom:1px solid #f5f0f5;display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:3px">{{ n.date }}{% if n.mood_tag %} · {{ n.mood_tag }}{% endif %}</div>
+      <div style="font-size:13px;color:#333;line-height:1.6">{{ n.content }}</div>
+    </div>
+    <a href="/delete_note/{{ n.id }}" class="btn btn-sm btn-danger" style="margin-left:12px;flex-shrink:0">✕</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

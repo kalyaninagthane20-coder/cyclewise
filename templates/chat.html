@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;flex-direction:column;height:calc(100vh - 120px)">
+  <div id="messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 0 16px">
+    <div class="bubble bot">Hi! I'm here to help you understand your health. Describe any symptoms you're experiencing — in English or Hindi. I'll ask a few questions before suggesting anything. 🌸</div>
+  </div>
+
+  <div id="starters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+    <button class="starter" onclick="sendStarter('I have irregular periods lately')">Irregular periods</button>
+    <button class="starter" onclick="sendStarter('I feel very tired all the time')">Always tired</button>
+    <button class="starter" onclick="sendStarter('I have very painful periods')">Painful periods</button>
+    <button class="starter" onclick="sendStarter('I have hair fall and weight gain')">Hair fall + weight gain</button>
+    <button class="starter" onclick="sendStarter('मेरे पीरियड्स अनियमित हैं')">मेरे पीरियड्स अनियमित हैं</button>
+  </div>
+
+  <div style="display:flex;gap:8px;border-top:1px solid #f0e0e8;padding-top:12px">
+    <input id="msg-input" type="text" placeholder="Describe your symptoms..." style="flex:1;margin-bottom:0"
+      onkeydown="if(event.key==='Enter') sendMessage()"/>
+    <button class="btn" onclick="sendMessage()">Send</button>
+    <button class="btn btn-outline btn-sm" onclick="resetChat()" style="padding:11px 14px">↺</button>
+  </div>
+</div>
+
+<style>
+  .bubble{max-width:82%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.7}
+  .bubble.user{align-self:flex-end;background:#993556;color:#fff;border-radius:16px 16px 4px 16px}
+  .bubble.bot{align-self:flex-start;background:#fff;border:1px solid #f0e0e8;border-radius:16px 16px 16px 4px;color:#2d1a2e}
+  .bubble.condition{background:#fdf0f5;border:1px solid #f0c0d0;color:#2d1a2e}
+  .starter{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #e8d0d8;background:#fff;color:#993556;cursor:pointer}
+</style>
+
+<script>
+  let messages = [];
+
+  function addBubble(text, type) {
+    const d = document.getElementById("messages");
+    const b = document.createElement("div");
+    b.className = "bubble " + type;
+    b.innerHTML = text;
+    d.appendChild(b);
+    d.scrollTop = d.scrollHeight;
+  }
+
+  function sendStarter(text) {
+    document.getElementById("starters").style.display = "none";
+    document.getElementById("msg-input").value = text;
+    sendMessage();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("msg-input");
+    const text  = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    document.getElementById("starters").style.display = "none";
+
+    addBubble(text, "user");
+    messages.push({ role: "user", content: text });
+
+    const res  = await fetch("/chat/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages })
+    });
+    const data = await res.json();
+
+    let replyHTML = data.reply;
+    if (data.show_condition && data.condition) {
+      replyHTML += `<br><br><small style="opacity:.7">Possible condition: <strong>${data.condition}</strong> (${data.confidence}% match)</small>`;
+    }
+    if (data.suggest_report) {
+      replyHTML += `<br><br><a href="/report" style="color:#993556;font-weight:600;font-size:13px">→ Generate health report</a>`;
+    }
+
+    addBubble(replyHTML, data.show_condition ? "condition" : "bot");
+    messages.push({ role: "assistant", content: data.reply });
+  }
+
+  function resetChat() {
+    messages = [];
+    const d = document.getElementById("messages");
+    d.innerHTML = '<div class="bubble bot">Hi! I\'m here to help. Describe any symptoms you\'re experiencing. 🌸</div>';
+    document.getElementById("starters").style.display = "flex";
+  }
+</script>
+{% endblock %}

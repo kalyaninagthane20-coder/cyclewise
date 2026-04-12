@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="background:{{ phase_info.color }}15;border-color:{{ phase_info.color }}44">
+  <div style="font-size:11px;font-weight:600;color:{{ phase_info.color }};text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">{{ phase_info.label }}</div>
+  <div style="font-size:14px;color:#444">{{ phase_info.tip }}</div>
+  {% if stats.next_period %}
+  <div style="font-size:12px;color:#888;margin-top:6px">Next period predicted: <strong>{{ stats.next_period }}</strong></div>
+  {% endif %}
+</div>
+
+<div class="stat-grid">
+  <div class="stat-box"><div class="stat-num">{{ stats.avg_cycle }}d</div><div class="stat-label">Avg cycle length</div></div>
+  <div class="stat-box"><div class="stat-num">{{ stats.avg_period }}d</div><div class="stat-label">Avg period length</div></div>
+  <div class="stat-box"><div class="stat-num">{{ stats.total }}</div><div class="stat-label">Cycles tracked</div></div>
+  <div class="stat-box" style="{{ 'background:#fff0f0' if stats.irregular else 'background:#e1f5ee' }}">
+    <div class="stat-num" style="{{ 'color:#c0392b' if stats.irregular else 'color:#1d9e75' }}">{{ 'Irregular' if stats.irregular else 'Regular' }}</div>
+    <div class="stat-label">Cycle pattern</div>
+  </div>
+</div>
+
+{% if notes %}
+<div class="card">
+  <div class="card-title">Recent journal entries</div>
+  {% for n in notes %}
+  <div style="padding:8px 0;border-bottom:1px solid #f5f0f5">
+    <div style="font-size:11px;color:#aaa;margin-bottom:2px">{{ n.date }}{% if n.mood_tag %} · {{ n.mood_tag }}{% endif %}</div>
+    <div style="font-size:13px;color:#444">{{ n.content }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <a href="/calendar" class="btn" style="text-align:center">Log period</a>
+  <a href="/notes"    class="btn btn-outline" style="text-align:center">Add note</a>
+  <a href="/chat"     class="btn btn-outline" style="text-align:center">Chat with AI</a>
+  <a href="/report"   class="btn" style="text-align:center">Get report</a>
+</div>
+{% endblock %}

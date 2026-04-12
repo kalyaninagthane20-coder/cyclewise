@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-title">Generate health report</div>
+  <form method="POST">
+    <label>From date (leave blank for all time)</label>
+    <input type="date" name="start_date"/>
+    <label>To date</label>
+    <input type="date" name="end_date" value="{{ today }}"/>
+    <button class="btn btn-full" type="submit">Generate & download PDF</button>
+  </form>
+</div>
+<div class="disclaimer">
+  The report will include your cycle statistics, journal notes, symptoms discussed in chat, and health recommendations. It is for personal awareness only — not a medical document.
+</div>
+{% endblock %}

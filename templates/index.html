@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:400px;margin:60px auto">
+  <div class="card">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:52px;height:52px;border-radius:14px;background:#993556;color:#fff;font-weight:700;font-size:24px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px">C</div>
+      <div style="font-size:22px;font-weight:700">CycleWise</div>
+      <div style="font-size:13px;color:#888;margin-top:4px">Your personal women's health companion</div>
+    </div>
+    <form method="POST" action="/login">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@email.com" required/>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" required/>
+      <button class="btn btn-full" type="submit">Sign in →</button>
+    </form>
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:#888">
+      Don't have an account? <a href="/register" style="color:#993556;font-weight:600">Create one</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

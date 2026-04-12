@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="stat-grid">
+  <div class="stat-box"><div class="stat-num">{{ stats.avg_cycle }}d</div><div class="stat-label">Avg cycle</div></div>
+  <div class="stat-box"><div class="stat-num">{{ stats.avg_period }}d</div><div class="stat-label">Avg period</div></div>
+  <div class="stat-box"><div class="stat-num">{{ stats.total }}</div><div class="stat-label">Logged</div></div>
+  <div class="stat-box">
+    <div class="stat-num" style="font-size:14px">{{ stats.next_period or '—' }}</div>
+    <div class="stat-label">Next period</div>
+  </div>
+</div>
+
+<!-- ── VISUAL CALENDAR ──────────────────────────────────── -->
+<div class="card" style="padding:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <button onclick="changeMonth(-1)" style="background:none;border:1.5px solid #e8d0d8;border-radius:8px;padding:4px 12px;cursor:pointer;font-size:16px;color:#993556">‹</button>
+    <div id="cal-title" style="font-size:16px;font-weight:700;color:#2d1a2e"></div>
+    <button onclick="changeMonth(1)"  style="background:none;border:1.5px solid #e8d0d8;border-radius:8px;padding:4px 12px;cursor:pointer;font-size:16px;color:#993556">›</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px">
+    {% for day in ['Su','Mo','Tu','We','Th','Fr','Sa'] %}
+    <div style="text-align:center;font-size:11px;font-weight:600;color:#aaa;padding:4px 0">{{ day }}</div>
+    {% endfor %}
+  </div>
+
+  <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap">
+    <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#666">
+      <span style="width:12px;height:12px;border-radius:50%;background:#993556;display:inline-block"></span> Period
+    </span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#666">
+      <span style="width:12px;height:12px;border-radius:50%;background:#f7cad8;border:1.5px dashed #993556;display:inline-block"></span> Predicted
+    </span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#666">
+      <span style="width:12px;height:12px;border-radius:50%;background:#e8f4fd;border:1.5px solid #378add;display:inline-block"></span> Today
+    </span>
+  </div>
+</div>
+
+<!-- ── LOG PERIOD FORM ──────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">Log a period</div>
+  <form method="POST">
+    <label>Start date</label>
+    <input type="date" name="start_date" required/>
+    <label>End date (optional)</label>
+    <input type="date" name="end_date"/>
+    <button class="btn" type="submit">Save cycle</button>
+  </form>
+</div>
+
+<!-- ── CYCLE HISTORY ────────────────────────────────────── -->
+{% if cycles %}
+<div class="card">
+  <div class="card-title">Cycle history</div>
+  <table>
+    <tr><th>Start</th><th>End</th><th>Length</th><th></th></tr>
+    {% for c in cycles %}
+    <tr>
+      <td>{{ c.start_date }}</td>
+      <td>{{ c.end_date or 'ongoing' }}</td>
+      <td>{{ ((c.end_date - c.start_date).days + 1) if c.end_date else '—' }}d</td>
+      <td><a href="/delete_cycle/{{ c.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this cycle?')">✕</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+{% if stats.next_period %}
+<div class="card" style="background:#fff8fb;border-color:#f0c0d0">
+  <div style="font-size:12px;font-weight:600;color:#993556;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Next predicted period</div>
+  <div style="font-size:22px;font-weight:700;color:#2d1a2e">{{ stats.next_period }}
+    {% if stats.next_period_end %}<span style="font-size:14px;color:#888;font-weight:400"> → {{ stats.next_period_end }}</span>{% endif %}
+  </div>
+  <div style="font-size:12px;color:#888;margin-top:4px">Based on your average {{ stats.avg_cycle }}-day cycle</div>
+</div>
+{% endif %}
+
+{% if stats.irregular %}
+<div class="disclaimer">⚠️ Your cycles show some irregularity (variation greater than 7 days). Consider tracking for a few more months and mentioning this to your doctor.</div>
+{% endif %}
+
+<!-- ── CALENDAR SCRIPT ───────────────────────────────────── -->
+<script>
+  const periodDates    = new Set({{ period_dates | safe }});
+  const predictedDates = new Set({{ predicted_dates | safe }});
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  let current = new Date();
+  current.setDate(1);
+
+  function toYMD(y, m, d) {
+    return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+
+  function renderCalendar() {
+    const year  = current.getFullYear();
+    const month = current.getMonth();
+
+    document.getElementById("cal-title").textContent =
+      current.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    const grid      = document.getElementById("cal-grid");
+    grid.innerHTML  = "";
+
+    const firstDay  = new Date(year, month, 1).getDay(); // 0=Sun
+    const daysInMon = new Date(year, month + 1, 0).getDate();
+
+    // Leading empty cells
+    for (let i = 0; i < firstDay; i++) {
+      grid.appendChild(Object.assign(document.createElement("div"), { style: "" }));
+    }
+
+    for (let d = 1; d <= daysInMon; d++) {
+      const ymd  = toYMD(year, month, d);
+      const cell = document.createElement("div");
+
+      const isPeriod    = periodDates.has(ymd);
+      const isPredicted = predictedDates.has(ymd);
+      const isToday     = ymd === todayStr;
+
+      cell.textContent = d;
+      cell.style.cssText = `
+        text-align:center;
+        padding:7px 2px;
+        border-radius:8px;
+        font-size:13px;
+        font-weight: ${isToday ? '700' : '400'};
+        cursor:default;
+        position:relative;
+        transition:background .15s;
+        ${isPeriod    ? 'background:#993556;color:#fff;'                                       :
+          isPredicted ? 'background:#f7cad8;color:#7a2944;border:1.5px dashed #993556;'       :
+          isToday     ? 'background:#e8f4fd;color:#1a6aa8;border:1.5px solid #378add;'        :
+                        'color:#444;'}
+      `;
+
+      // Tooltip on hover
+      if (isPeriod)    cell.title = "Period day (logged)";
+      if (isPredicted) cell.title = "Predicted period day";
+      if (isToday && !isPeriod && !isPredicted) cell.title = "Today";
+
+      grid.appendChild(cell);
+    }
+  }
+
+  function changeMonth(dir) {
+    current.setMonth(current.getMonth() + dir);
+    renderCalendar();
+  }
+
+  // Start on the month that contains the next predicted period, or today
+  const nextPeriod = "{{ stats.next_period or '' }}";
+  if (nextPeriod) {
+    const np = new Date(nextPeriod);
+    current  = new Date(np.getFullYear(), np.getMonth(), 1);
+  }
+
+  renderCalendar();
+</script>
+{% endblock %}
