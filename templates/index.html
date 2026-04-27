@@ -7,13 +7,19 @@
       <div style="font-size:22px;font-weight:700">CycleWise</div>
       <div style="font-size:13px;color:#888;margin-top:4px">Your personal women's health companion</div>
     </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
     <form method="POST" action="/login">
-      <label>Email</label>
-      <input type="email" name="email" placeholder="you@email.com" required/>
+      <label>Email or mobile number</label>
+      <input type="text" name="login_input" placeholder="Email or 10-digit mobile" required/>
       <label>Password</label>
       <input type="password" name="password" placeholder="••••••••" required/>
       <button class="btn btn-full" type="submit">Sign in →</button>
     </form>
+
     <div style="text-align:center;margin-top:14px;font-size:13px;color:#888">
       Don't have an account? <a href="/register" style="color:#993556;font-weight:600">Create one</a>
     </div>

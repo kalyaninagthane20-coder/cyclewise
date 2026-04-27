@@ -1,19 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="max-width:400px;margin:60px auto">
+<div style="max-width:460px;margin:40px auto">
   <div class="card">
-    <div class="card-title" style="text-align:center">Create your account</div>
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="width:48px;height:48px;border-radius:13px;background:#993556;color:#fff;font-weight:700;font-size:22px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px">C</div>
+      <div style="font-size:20px;font-weight:700">Create your account</div>
+      <div style="font-size:12px;color:#888;margin-top:3px">Your personal women's health companion</div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
     <form method="POST" action="/register">
-      <label>Full name</label>
-      <input type="text" name="name" placeholder="Your name" required/>
-      <label>Email</label>
+
+      <label>Full name *</label>
+      <input type="text" name="name" placeholder="Your full name" required/>
+
+      <label>Email address *</label>
       <input type="email" name="email" placeholder="you@email.com" required/>
-      <label>Password</label>
-      <input type="password" name="password" placeholder="••••••••" required/>
+
+      <label>Mobile number *</label>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <span style="padding:10px 12px;border:1.5px solid #e8d0d8;border-radius:10px;background:#f5f0f5;font-size:13px;color:#666">+91</span>
+        <input type="tel" name="mobile" placeholder="10-digit number"
+               maxlength="10" pattern="[0-9]{10}"
+               style="margin-bottom:0;flex:1" required/>
+      </div>
+
+      <label>Gender *</label>
+      <select name="gender" required style="margin-bottom:12px">
+        <option value="" disabled selected>Select gender</option>
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+        <option value="Non-binary">Non-binary</option>
+        <option value="Prefer not to say">Prefer not to say</option>
+      </select>
+
+      <label>Password * (min 6 characters)</label>
+      <input type="password" name="password" placeholder="••••••••" minlength="6" required/>
+
+      <label>Confirm password *</label>
+      <input type="password" name="confirm_password" placeholder="••••••••" required/>
+
+      <!-- Text Captcha -->
+      <div style="background:#f5f0f8;border-radius:12px;padding:14px;margin-bottom:14px">
+        <label style="color:#993556;font-weight:600;margin-bottom:8px">Security check — type the word shown:</label>
+        <div style="background:#2d1a2e;border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;letter-spacing:6px;font-size:22px;font-weight:700;color:#f0c0d4;font-family:monospace">
+          {{ captcha_display }}
+        </div>
+        <input type="text" name="captcha" placeholder="Type the word above (lowercase)"
+               autocomplete="off" required/>
+      </div>
+
+      <!-- Agree checkbox -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;background:#fdf0f5;border-radius:10px;padding:12px">
+        <input type="checkbox" name="agree" id="agree"
+               style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#993556" required/>
+        <label for="agree" style="font-size:12px;color:#555;line-height:1.6;margin-bottom:0;cursor:pointer">
+          I agree to use CycleWise for personal health awareness only. I understand this app does not provide medical diagnosis and I will consult a qualified doctor for any health concerns. *
+        </label>
+      </div>
+
       <button class="btn btn-full" type="submit">Create account →</button>
     </form>
+
     <div style="text-align:center;margin-top:14px;font-size:13px;color:#888">
-      Already have an account? <a href="/login" style="color:#993556;font-weight:600">Sign in</a>
+      Already have an account?
+      <a href="/login" style="color:#993556;font-weight:600">Sign in</a>
     </div>
   </div>
 </div>

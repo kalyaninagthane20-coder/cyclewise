@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <div style="font-size:20px;font-weight:700">Admin Dashboard</div>
+  <a href="/admin/logout" class="btn btn-outline btn-sm">Logout admin</a>
+</div>
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+  <div class="stat-box"><div class="stat-num">{{ users|length }}</div><div class="stat-label">Total users</div></div>
+  <div class="stat-box"><div class="stat-num">{{ total_cycles }}</div><div class="stat-label">Cycles logged</div></div>
+  <div class="stat-box"><div class="stat-num">{{ total_notes }}</div><div class="stat-label">Journal notes</div></div>
+</div>
+
+<!-- Users table -->
+<div class="card">
+  <div class="card-title">Registered Users</div>
+  {% if users %}
+  <table>
+    <tr><th>Name</th><th>Email</th><th>Mobile</th><th>Gender</th><th>Cycles</th><th>Notes</th><th>Joined</th><th></th></tr>
+    {% for u in users %}
+    <tr>
+      <td style="font-weight:500">{{ u.name }}</td>
+      <td style="font-size:12px">{{ u.email }}</td>
+      <td style="font-size:12px">{{ u.mobile }}</td>
+      <td style="font-size:12px">{{ u.gender }}</td>
+      <td>{{ u.cycles|length }}</td>
+      <td>{{ u.notes|length }}</td>
+      <td style="font-size:12px">{{ u.created_at.strftime('%d %b %Y') }}</td>
+      <td>
+        <a href="/admin/delete_user/{{ u.id }}"
+           class="btn btn-sm btn-danger"
+           onclick="return confirm('Delete {{ u.name }}? This cannot be undone.')">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p style="color:#aaa;font-size:13px;text-align:center;padding:20px">No users registered yet.</p>
+  {% endif %}
+</div>
+
+<!-- Hospital reference -->
+<div class="card">
+  <div class="card-title">Hospital Database</div>
+  <p style="font-size:13px;color:#666;margin-bottom:8px">
+    The app currently has a fixed list of hospitals across 9 cities. Users can view and filter them from the Hospitals page.
+  </p>
+  <a href="/hospitals" class="btn btn-outline btn-sm">View hospital list ↗</a>
+</div>
+
+{% endblock %}

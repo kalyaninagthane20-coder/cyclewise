@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: cyclewise
+    env: python
+    buildCommand: pip install -r requirements.txt && python model.py
+    startCommand: gunicorn app:app
+    plan: free

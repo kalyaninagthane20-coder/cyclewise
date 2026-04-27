@@ -2,77 +2,482 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
   <title>CycleWise</title>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fdf8f5;color:#2d1a2e}
-    header{background:#fff;border-bottom:1px solid #f0e0e8;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
-    .logo-box{display:flex;align-items:center;gap:10px}
-    .logo{width:32px;height:32px;border-radius:9px;background:#993556;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center}
-    .logo-text{font-size:18px;font-weight:700;color:#2d1a2e}
-    nav{display:flex;gap:4px}
-    nav a{padding:6px 14px;border-radius:20px;text-decoration:none;font-size:13px;color:#666}
-    nav a.active,nav a:hover{background:#993556;color:#fff}
-    .user-bar{display:flex;align-items:center;gap:10px;font-size:13px;color:#666}
-    .logout{padding:4px 12px;border-radius:20px;border:1px solid #e8d0d8;background:transparent;color:#993556;font-size:12px;cursor:pointer;text-decoration:none}
-    main{max-width:700px;margin:28px auto;padding:0 16px 60px}
-    .card{background:#fff;border:1px solid #f0e0e8;border-radius:16px;padding:22px;margin-bottom:16px}
-    .card-title{font-size:17px;font-weight:700;color:#2d1a2e;margin-bottom:14px}
-    label{font-size:12px;color:#666;display:block;margin-bottom:4px}
-    input[type=text],input[type=email],input[type=password],input[type=date],textarea,select{width:100%;padding:10px 13px;border:1.5px solid #e8d0d8;border-radius:10px;font-size:13px;font-family:inherit;outline:none;margin-bottom:12px;background:#fdf8f5}
-    input:focus,textarea:focus{border-color:#993556}
-    textarea{min-height:90px;resize:vertical}
-    .btn{display:inline-block;padding:11px 22px;border-radius:11px;border:none;background:#993556;color:#fff;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}
-    .btn:hover{background:#7a2944}
-    .btn-outline{background:transparent;border:1.5px solid #993556;color:#993556}
-    .btn-full{width:100%;text-align:center}
-    .btn-sm{padding:5px 14px;font-size:12px;border-radius:8px}
-    .btn-danger{background:#e74c3c}
-    .flash{background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:10px 14px;font-size:13px;color:#c00;margin-bottom:14px}
-    .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-    .stat-box{background:#fff;border:1px solid #f0e0e8;border-radius:12px;padding:14px;text-align:center}
-    .stat-num{font-size:26px;font-weight:700;color:#993556}
-    .stat-label{font-size:11px;color:#888;margin-top:2px}
-    .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
-    .tag-yellow{background:#FAEEDA;color:#633806}
-    .tag-red{background:#FCEBEB;color:#791F1F}
-    .tag-green{background:#E1F5EE;color:#0F6E56}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th{text-align:left;padding:8px 10px;border-bottom:2px solid #f0e0e8;color:#993556;font-size:12px}
-    td{padding:8px 10px;border-bottom:1px solid #f5f0f5;color:#444}
-    .disclaimer{background:#fff8f0;border:1px solid #fde8cc;border-radius:10px;padding:12px 16px;font-size:12px;color:#b35c00;line-height:1.6;margin-top:16px}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:         #993556;
+      --rose-dark:    #7a2944;
+      --rose-mid:     #D4537E;
+      --rose-light:   #fdf0f5;
+      --rose-border:  #f0c0d0;
+      --plum:         #2d1a2e;
+      --cream:        #fdf8f5;
+      --white:        #ffffff;
+      --gray-1:       #f5f0f5;
+      --gray-2:       #e8d0d8;
+      --gray-3:       #aaa;
+      --gray-4:       #666;
+      --gray-5:       #444;
+      --teal:         #1D9E75;
+      --teal-light:   #E1F5EE;
+      --amber:        #BA7517;
+      --amber-light:  #FAEEDA;
+      --red:          #C0392B;
+      --red-light:    #FCEBEB;
+      --purple:       #7F77DD;
+      --purple-light: #EEEDFE;
+      --shadow-sm:    0 1px 6px rgba(153,53,86,0.08);
+      --shadow-md:    0 4px 20px rgba(153,53,86,0.14);
+      --radius-sm:    8px;
+      --radius-md:    14px;
+      --radius-lg:    20px;
+      --radius-xl:    26px;
+      --bottom-nav-h: 68px;
+      --top-bar-h:    56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--cream);
+      color: var(--plum);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    /* ══════════════════════════════════
+       TOP BAR
+    ══════════════════════════════════ */
+    .cw-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--top-bar-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--rose-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 300;
+      box-shadow: var(--shadow-sm);
+    }
+    .cw-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+    }
+    .cw-logo-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--rose-mid), var(--rose));
+      color: var(--white);
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(153,53,86,0.35);
+    }
+    .cw-logo-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--plum);
+      letter-spacing: -0.3px;
+    }
+    .cw-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cw-user-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--rose-light);
+      border: 1px solid var(--rose-border);
+      border-radius: 20px;
+      padding: 5px 12px 5px 6px;
+      font-size: 13px;
+      color: var(--rose);
+      font-weight: 600;
+    }
+    .cw-user-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cw-logout-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--gray-1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .cw-logout-btn:hover { background: var(--red-light); }
+
+    /* ══════════════════════════════════
+       MAIN SCROLL AREA
+    ══════════════════════════════════ */
+    .cw-main {
+      padding-top: calc(var(--top-bar-h) + 16px);
+      padding-bottom: calc(var(--bottom-nav-h) + 20px);
+      padding-left: 16px;
+      padding-right: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Desktop override */
+    @media (min-width: 640px) {
+      .cw-main { max-width: 720px; padding-left: 24px; padding-right: 24px; }
+    }
+
+    /* ══════════════════════════════════
+       BOTTOM NAV
+    ══════════════════════════════════ */
+    .cw-bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--bottom-nav-h);
+      background: var(--white);
+      border-top: 1px solid var(--rose-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 300;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -2px 16px rgba(153,53,86,0.1);
+    }
+    .bn-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-decoration: none;
+      color: var(--gray-3);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: var(--radius-md);
+      transition: all 0.15s;
+      min-width: 56px;
+      position: relative;
+    }
+    .bn-item .bn-icon {
+      font-size: 22px;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+    .bn-item.active {
+      color: var(--rose);
+    }
+    .bn-item.active .bn-icon {
+      transform: translateY(-2px);
+    }
+    .bn-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      width: 24px;
+      height: 3px;
+      background: var(--rose);
+      border-radius: 3px 3px 0 0;
+    }
+
+    /* ══════════════════════════════════
+       CARDS
+    ══════════════════════════════════ */
+    .card {
+      background: var(--white);
+      border: 1px solid #f0e4ea;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--plum);
+      margin-bottom: 14px;
+    }
+
+    /* ══════════════════════════════════
+       FORMS
+    ══════════════════════════════════ */
+    label {
+      font-size: 11px;
+      color: var(--gray-4);
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    input[type=text], input[type=email], input[type=password],
+    input[type=date], input[type=tel], input[type=number],
+    textarea, select {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1.5px solid var(--gray-2);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 14px;
+      background: var(--cream);
+      color: var(--plum);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--rose);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(153,53,86,0.1);
+    }
+    textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23993556' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      padding-right: 38px;
+    }
+
+    /* ══════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--rose);
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      font-family: inherit;
+      box-shadow: 0 3px 12px rgba(153,53,86,0.3);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn:active        { transform: scale(0.97); box-shadow: none; }
+    .btn-outline       { background: transparent; border: 2px solid var(--rose); color: var(--rose); box-shadow: none; }
+    .btn-outline:active { background: var(--rose-light); }
+    .btn-full          { width: 100%; }
+    .btn-sm            { padding: 9px 16px; font-size: 13px; border-radius: var(--radius-sm); box-shadow: none; }
+    .btn-danger        { background: var(--red); box-shadow: none; }
+    .btn-gray          { background: var(--gray-1); color: var(--gray-5); box-shadow: none; }
+
+    /* ══════════════════════════════════
+       FLASH
+    ══════════════════════════════════ */
+    .flash {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--red-light);
+      border: 1px solid #f7c1c1;
+      border-left: 4px solid var(--red);
+      border-radius: var(--radius-md);
+      padding: 13px 15px;
+      font-size: 13px;
+      color: #791F1F;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .flash::before { content: "⚠️"; font-size: 15px; flex-shrink: 0; }
+
+    /* ══════════════════════════════════
+       STAT GRID
+    ══════════════════════════════════ */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stat-box {
+      background: var(--white);
+      border: 1px solid #f0e4ea;
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-num   { font-size: 28px; font-weight: 800; color: var(--rose); line-height: 1; }
+    .stat-label { font-size: 10px; color: var(--gray-3); margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ══════════════════════════════════
+       TAGS
+    ══════════════════════════════════ */
+    .tag         { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .tag-yellow  { background: var(--amber-light); color: var(--amber); }
+    .tag-red     { background: var(--red-light); color: var(--red); }
+    .tag-green   { background: var(--teal-light); color: var(--teal); }
+    .tag-rose    { background: var(--rose-light); color: var(--rose); }
+
+    /* ══════════════════════════════════
+       TABLE
+    ══════════════════════════════════ */
+    .cw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .cw-table th { text-align: left; padding: 10px 10px; border-bottom: 2px solid var(--rose-border); color: var(--rose); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cw-table td { padding: 10px 10px; border-bottom: 1px solid var(--gray-1); color: var(--gray-5); vertical-align: middle; }
+    .cw-table tr:last-child td { border-bottom: none; }
+
+    /* ══════════════════════════════════
+       DISCLAIMER
+    ══════════════════════════════════ */
+    .disclaimer {
+      background: #fffbf0;
+      border: 1px solid #fde8cc;
+      border-left: 4px solid var(--amber);
+      border-radius: var(--radius-md);
+      padding: 13px 15px;
+      font-size: 12px;
+      color: #7a5200;
+      line-height: 1.7;
+      margin-top: 14px;
+    }
+
+    /* ══════════════════════════════════
+       EMPTY STATE
+    ══════════════════════════════════ */
+    .empty-state { text-align: center; padding: 36px 20px; }
+    .empty-state .empty-icon { font-size: 52px; display: block; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 16px; color: var(--plum); margin-bottom: 6px; font-weight: 700; }
+    .empty-state p  { font-size: 13px; color: var(--gray-3); line-height: 1.6; }
+
+    /* ══════════════════════════════════
+       DESKTOP OVERRIDES
+    ══════════════════════════════════ */
+    @media (min-width: 640px) {
+      .cw-bottom-nav { display: none; }
+      .cw-topbar { height: 60px; padding: 0 28px; }
+      .cw-main { padding-top: calc(60px + 24px); padding-bottom: 60px; }
+      /* Show desktop nav in topbar */
+      .cw-desktop-nav { display: flex !important; }
+    }
+
+    /* Desktop nav (hidden on mobile) */
+    .cw-desktop-nav {
+      display: none;
+      align-items: center;
+      gap: 2px;
+      list-style: none;
+    }
+    .cw-desktop-nav a {
+      padding: 7px 13px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-4);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .cw-desktop-nav a:hover  { background: var(--rose-light); color: var(--rose); }
+    .cw-desktop-nav a.active { background: var(--rose); color: var(--white); font-weight: 600; }
   </style>
 </head>
 <body>
-{% if current_user.is_authenticated %}
-<header>
-  <div class="logo-box">
-    <div class="logo">C</div>
-    <span class="logo-text">CycleWise</span>
-  </div>
-  <nav>
-    <a href="/dashboard" class="{{ 'active' if request.path=='/dashboard' }}">Home</a>
-    <a href="/calendar"  class="{{ 'active' if request.path=='/calendar'  }}">Cycle</a>
-    <a href="/notes"     class="{{ 'active' if request.path=='/notes'     }}">Journal</a>
-    <a href="/chat"      class="{{ 'active' if request.path=='/chat'      }}">Chat</a>
-    <a href="/report"    class="{{ 'active' if request.path=='/report'    }}">Report</a>
-  </nav>
-  <div class="user-bar">
-    Hi, {{ current_user.name.split()[0] }}
-    <a href="/logout" class="logout">Logout</a>
+
+{% if current_user.is_authenticated or session.get('is_admin') %}
+
+<!-- TOP BAR -->
+<header class="cw-topbar">
+  <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('admin_dashboard') }}" class="cw-logo">
+    <div class="cw-logo-icon">C</div>
+    <span class="cw-logo-text">CycleWise</span>
+  </a>
+
+  <!-- Desktop nav -->
+  {% if current_user.is_authenticated %}
+  <ul class="cw-desktop-nav">
+    <li><a href="{{ url_for('dashboard') }}"  class="{{ 'active' if request.endpoint=='dashboard'  }}">🏠 Home</a></li>
+    <li><a href="{{ url_for('calendar') }}"   class="{{ 'active' if request.endpoint=='calendar'   }}">📅 Cycle</a></li>
+    <li><a href="{{ url_for('notes') }}"      class="{{ 'active' if request.endpoint=='notes'      }}">📝 Journal</a></li>
+    <li><a href="{{ url_for('chat') }}"       class="{{ 'active' if request.endpoint=='chat'       }}">💬 Chat</a></li>
+    <li><a href="{{ url_for('hospitals') }}"  class="{{ 'active' if request.endpoint=='hospitals'  }}">🏥 Hospitals</a></li>
+    <li><a href="{{ url_for('report') }}"     class="{{ 'active' if request.endpoint=='report'     }}">📊 Report</a></li>
+  </ul>
+  {% endif %}
+
+  <div class="cw-topbar-right">
+    {% if current_user.is_authenticated %}
+      <div class="cw-user-chip">
+        <div class="cw-user-avatar">{{ current_user.name[0].upper() }}</div>
+        {{ current_user.name.split()[0] }}
+      </div>
+      <a href="{{ url_for('logout') }}" class="cw-logout-btn" title="Logout">🚪</a>
+    {% elif session.get('is_admin') %}
+      <div class="cw-user-chip">
+        <div class="cw-user-avatar">A</div>
+        Admin
+      </div>
+      <a href="{{ url_for('admin_logout') }}" class="cw-logout-btn" title="Logout">🚪</a>
+    {% endif %}
   </div>
 </header>
+
+<!-- BOTTOM NAV (mobile only) -->
+{% if current_user.is_authenticated %}
+<nav class="cw-bottom-nav">
+  <a href="{{ url_for('dashboard') }}"  class="bn-item {{ 'active' if request.endpoint=='dashboard'  }}">
+    <span class="bn-icon">🏠</span>Home
+  </a>
+  <a href="{{ url_for('calendar') }}"   class="bn-item {{ 'active' if request.endpoint=='calendar'   }}">
+    <span class="bn-icon">📅</span>Cycle
+  </a>
+  <a href="{{ url_for('chat') }}"       class="bn-item {{ 'active' if request.endpoint=='chat'       }}">
+    <span class="bn-icon">💬</span>Chat
+  </a>
+  <a href="{{ url_for('hospitals') }}"  class="bn-item {{ 'active' if request.endpoint=='hospitals'  }}">
+    <span class="bn-icon">🏥</span>Hospitals
+  </a>
+  <a href="{{ url_for('report') }}"     class="bn-item {{ 'active' if request.endpoint=='report'     }}">
+    <span class="bn-icon">📊</span>Report
+  </a>
+</nav>
 {% endif %}
-<main>
+
+{% endif %}
+
+<!-- MAIN -->
+<div class="cw-main">
   {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for msg in messages %}
-        <div class="flash">{{ msg }}</div>
-      {% endfor %}
-    {% endif %}
+    {% if messages %}{% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}{% endif %}
   {% endwith %}
   {% block content %}{% endblock %}
-</main>
+</div>
+
 </body>
 </html>
