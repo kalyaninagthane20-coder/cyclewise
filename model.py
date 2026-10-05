@@ -1,16 +1,20 @@
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.pipeline import Pipeline
-import pickle
+import json
 import os
+import pickle
 
-DATA_PATH  = os.path.join(os.path.dirname(__file__), "data", "symptoms.csv")
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
+import numpy as np
+import pandas as pd
+from sklearn.dummy import DummyClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+
+BASE_DIR     = os.path.dirname(__file__)
+DATA_PATH    = os.path.join(BASE_DIR, "data", "symptoms.csv")
+MODEL_PATH   = os.path.join(BASE_DIR, "model.pkl")
+METRICS_PATH = os.path.join(BASE_DIR, "metrics.json")
 
 CONDITION_INFO = {
     "PCOS": {
@@ -87,43 +91,63 @@ CONDITION_URGENCY = {
     "Fibroids": "yellow", "Perimenopause": "green"
 }
 
-def train():
-    df = pd.read_csv(DATA_PATH)
-
-    print(f"Dataset shape: {df.shape}")
-    print(f"Conditions: {df['condition'].value_counts().to_dict()}")
-
-    X = df["symptom_text"]
-    y = df["condition"]
-
-    pipeline = Pipeline([
-        ("tfidf", TfidfVectorizer(
-            ngram_range=(1, 2),
-            max_features=3000,
-            stop_words="english"
-        )),
-        ("clf", LogisticRegression(
-            max_iter=1000,
-            multi_class="multinomial",
-            solver="lbfgs",
-            C=1.0
-        ))
+def build_pipeline(classifier):
+    """TF-IDF text features (unigrams + bigrams) followed by any sklearn classifier."""
+    return Pipeline([
+        ("tfidf", TfidfVectorizer(ngram_range=(1, 2), max_features=3000, stop_words="english")),
+        ("clf", classifier),
     ])
 
-    if len(df) > 10:
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42, stratify=y
-        )
-        pipeline.fit(X_train, y_train)
-        preds = pipeline.predict(X_test)
-        print(f"\nAccuracy: {accuracy_score(y_test, preds):.2f}")
-        print(classification_report(y_test, preds))
-    else:
-        pipeline.fit(X, y)
+
+def candidate_models():
+    return {
+        "majority_baseline": build_pipeline(DummyClassifier(strategy="most_frequent")),
+        "naive_bayes": build_pipeline(MultinomialNB()),
+        "logistic_regression": build_pipeline(LogisticRegression(max_iter=1000, C=1.0)),
+    }
+
+
+def evaluate(X, y, n_splits=4):
+    """Stratified k-fold cross-validation, so every row is tested exactly once.
+
+    With only 28 rows, a single train/test split would be too noisy to trust.
+    Reporting mean and standard deviation across folds gives a fairer picture.
+    """
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+    results = {}
+    for name, model in candidate_models().items():
+        scores = cross_validate(model, X, y, cv=cv, scoring=["accuracy", "f1_macro"])
+        results[name] = {
+            "accuracy_mean": float(np.mean(scores["test_accuracy"])),
+            "accuracy_std": float(np.std(scores["test_accuracy"])),
+            "f1_macro_mean": float(np.mean(scores["test_f1_macro"])),
+            "f1_macro_std": float(np.std(scores["test_f1_macro"])),
+        }
+    return results
+
+
+def train():
+    df = pd.read_csv(DATA_PATH)
+    X, y = df["symptom_text"], df["condition"]
+
+    print(f"Dataset shape: {df.shape}")
+    print(f"Conditions: {y.value_counts().to_dict()}")
+
+    results = evaluate(X, y)
+    for name, r in results.items():
+        print(f"{name:>20}: accuracy {r['accuracy_mean']:.2f} +/- {r['accuracy_std']:.2f}, "
+              f"macro-F1 {r['f1_macro_mean']:.2f} +/- {r['f1_macro_std']:.2f}")
+
+    # The production model is fitted on all rows. Its metrics come from the CV above.
+    pipeline = build_pipeline(LogisticRegression(max_iter=1000, C=1.0))
+    pipeline.fit(X, y)
 
     with open(MODEL_PATH, "wb") as f:
         pickle.dump(pipeline, f)
-    print("Model saved.")
+    with open(METRICS_PATH, "w") as f:
+        json.dump({"rows": int(len(df)), "classes": sorted(y.unique().tolist()),
+                   "cv_folds": 4, "models": results}, f, indent=2)
+    print("Model and metrics saved.")
     return pipeline
 
 def load():

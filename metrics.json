@@ -1,0 +1,32 @@
+{
+  "rows": 28,
+  "classes": [
+    "Anaemia",
+    "Endometriosis",
+    "Fibroids",
+    "Hypothyroidism",
+    "PCOS",
+    "Perimenopause"
+  ],
+  "cv_folds": 4,
+  "models": {
+    "majority_baseline": {
+      "accuracy_mean": 0.14285714285714285,
+      "accuracy_std": 0.0,
+      "f1_macro_mean": 0.041666666666666664,
+      "f1_macro_std": 0.0
+    },
+    "naive_bayes": {
+      "accuracy_mean": 0.49999999999999994,
+      "accuracy_std": 0.15971914124998499,
+      "f1_macro_mean": 0.37857142857142856,
+      "f1_macro_std": 0.13117345456557003
+    },
+    "logistic_regression": {
+      "accuracy_mean": 0.5357142857142856,
+      "accuracy_std": 0.15567496226930977,
+      "f1_macro_mean": 0.423015873015873,
+      "f1_macro_std": 0.1382433979885751
+    }
+  }
+}

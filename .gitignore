@@ -1,0 +1,14 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# local data (user data must never be committed)
+instance/
+*.db
+*.sqlite3
+
+# tooling
+.pytest_cache/
+.env
